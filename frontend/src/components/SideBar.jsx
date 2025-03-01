@@ -1,4 +1,4 @@
-import { Box, Divider, Hidden, IconButton } from "@mui/material";
+import { Box, Divider, IconButton } from "@mui/material";
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer,{ drawerClasses } from "@mui/material/Drawer";
 import MuiBox from "@mui/material/Box";

@@ -20,7 +20,7 @@ const Avatar = styled(MuiAvatar)(({ theme }) => ({
   border: `1px solid ${(theme.vars || theme).palette.divider}`,
 }));
 
-const Select = styled(MuiSelect) (
+const Select = styled(MuiSelect, { shouldForwardProp: (prop) => prop !== 'isopen'  }) (
     ({theme}) => ({
         maxHeight: 56,
         '&.MuiList-root': {
@@ -34,7 +34,7 @@ const Select = styled(MuiSelect) (
         },
         variants: [
             { 
-                props: ({isOpen}) => isOpen,
+                props: ({isopen}) => isopen,
                 
                 style: {
                     transition: theme.transitions.create('width', {
@@ -45,7 +45,7 @@ const Select = styled(MuiSelect) (
                 } 
             },
             { 
-                props: ({isOpen}) => !isOpen,
+                props: ({isopen}) => !isopen,
                 style: {
                     transition: theme.transitions.create('width', {
                         easing: theme.transitions.easing.sharp,
@@ -80,7 +80,7 @@ export default function SelectTable(props) {
       displayEmpty
       inputProps={{ 'aria-label': 'Select company' }}
       fullWidth
-      isOpen={props.open}
+      isopen={props.open}
     >
         
       <MenuItem value="">

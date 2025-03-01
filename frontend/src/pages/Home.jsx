@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import MuiCard from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import SideBar from '../components/SideBar';
+import Table from '../components/Table';
 
 
 
@@ -13,8 +14,18 @@ const Home = () => {
 
   return (
     <>
-      <Box sx={{ display: 'flex'}}>
+      <Box sx={{ display: 'flex', flexDirection: 'row'}}>
         <SideBar/>
+        
+        <Box sx={{ display: 'flex', flexDirection: 'column', width: "95%", height: "95%", padding: 4}}>
+
+          <Typography component={'h2'}>
+            Database/Schema/Table
+          </Typography>
+        
+          <Table/>
+          
+        </Box>
       </Box>
     </>
     )
