@@ -52,7 +52,7 @@ const rows = [
 
 export default function Table() {
     return ( 
-       <Box>
+       <Box sx={{ display:"flex" }}>
         <DataGrid
             columns={columns}
             rows={rows}

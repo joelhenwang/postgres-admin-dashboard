@@ -17,7 +17,7 @@ const Home = () => {
       <Box sx={{ display: 'flex', flexDirection: 'row'}}>
         <SideBar/>
         
-        <Box sx={{ display: 'flex', flexDirection: 'column', width: "95%", height: "95%", padding: 4}}>
+        <Box sx={{ display: 'flex', flexGrow: 1, overflow: "auto", flexDirection: 'column', width: "auto", height: "95%", padding: 4}}>
 
           <Typography component={'h2'}>
             Database/Schema/Table
