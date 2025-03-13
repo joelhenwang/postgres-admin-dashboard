@@ -1,0 +1,26 @@
+### Root route GET http request
+GET http://localhost:3000/
+
+
+### Test public api
+GET http://localhost:3000/api/test/all
+
+
+### Test sign in
+POST http://localhost:3000/api/auth/signin
+Content-Type: application/json
+
+{
+    "username": "joelwang.98@gmail.com",
+    "password": "fighting45"
+}
+
+
+### Test jwt token
+GET http://localhost:3000/api/test/webdev
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQxODkxMjA4LCJleHAiOjE3NDE4OTMwMDh9.6OvdF_W1bJlFfTQckLvA0DaMxW-4N3sstsCZTzeb8CA
+Content-Type: application/json
+
+{
+    "username": "joelwang.98@gmail.com"
+}

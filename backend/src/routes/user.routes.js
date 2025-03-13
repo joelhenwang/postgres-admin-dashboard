@@ -1,4 +1,4 @@
-const {authJWT} = require('../middleware/authJWT');
+const authJWT = require('../middleware/authJWT');
 const controller = require("../controllers/user.controller");
 
 
@@ -15,9 +15,14 @@ module.exports = (app) => {
     app.get("/api/test/all", controller.allAccess);
     
     app.get(
-        "api/test/webdev",
+        "api/test/token",
         [authJWT.verifyToken]
+    );
 
-    )
+    app.get(
+        "/api/test/webdev",
+        [authJWT.verifyToken, authJWT.isWebdev],
+        controller.webdevBoard
+    );
 }
 
