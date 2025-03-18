@@ -1,43 +1,48 @@
-const db_pool = require('../models/index');
 const config = require('../config/auth.config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcryptjs");
+const Users = require('../models/users')
+
+async function signup(req, res) {
+    try{
+        const json = req.body;
+        Users.insertUser(
+            json.username,
+            bcrypt.hashSync(json.password, 8),
+            json.role,
+            json.email 
+        );
+        res.send({
+            message: `User with username: ${json.username} - was created successfully.`
+        });
+    } catch(e){
+        res.status(500).send(`Error registering user with username: ${json.username}`);
+    }    
+}
+
+
 
 async function signin(req, res) {
     const json = req.body;
-    console.log(json);
-    
-    
-    const query = `SELECT id, username, password, role FROM users WHERE username='${json.username}'`
-    let query_result = [];
 
     try{
-        var client = await db_pool.connect();
-        query_result = await client.query(query); 
+        var user = await Users.getByUsername(json.username)
+        if (user.length === 0){
+            return res.status(404).send({message: "User not found."});
+        }
+        user = user[0]
     }
     catch(e){
         console.log(`Error querying for user${json.username}. Error message: ${e}`);
         res.status(500).send({
             message: "Error querying for user."
-        })
+        });
         
     } 
-    finally{
-        client.release();
-    }
-
-    if (query_result.length === 0){
-        return res.status(404).send({message: "User not found."});
-    }
-
-    const user = query_result[0];
-
-    console.log(user);
     
+    console.log(user);
 
-    var isPasswordValid = bcrypt.compareSync(req.body.password, user.password);
-
-    console.log(isPasswordValid);
+    var isPasswordValid = bcrypt.compareSync(json.password, user.password);
     
     if(!isPasswordValid){
         return res.status(401).send({
@@ -47,7 +52,7 @@ async function signin(req, res) {
     }
 
     const token = jwt.sign(
-        { id: user.id },
+        { id: user.id, username: user.username, role: user.role },
         config.secret,
         {
             algorithm: 'HS256',
@@ -66,5 +71,6 @@ async function signin(req, res) {
 
 
 module.exports = {
+    signup: signup,
     signin: signin
 }

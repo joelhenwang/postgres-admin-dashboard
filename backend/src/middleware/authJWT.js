@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const auth_config = require('../config/auth.config');
-const db_pool = require('../models/index');
 
 
 function verifyToken(req, res, next) {
@@ -24,53 +23,30 @@ function verifyToken(req, res, next) {
             }
             
             req.userId = decoded.id;
+            req.userName = decoded.username;
+            req.userRole = decoded.role;
             next();
         }
     );
 }
 
-async function isWebdev(req, res, next) { 
-    console.log(req.userId);
+async function isSysadmin(req, res, next) { 
+    console.log(req.userRole);
     
-    const query = `SELECT id, username, password, role FROM users WHERE id='${req.userId}'`
-     let query_result = [];
-
-    try{
-        const client = await db_pool.connect();
-        query_result = await client.query(query); 
-    }
-    catch(e){
-        console.log(`Error querying for user with id${req.userId}. Error message: ${e}`);
-        res.status(500).send({
-            message: "Error querying for user."
-        })
-        
-    } 
-    finally{
-        client.release();
-    }
-
-    if (query_result.length === 0){
-        return res.status(404).send({message: "User not found."});
-    }
-
-    const user = query_result[0];
-    
-    if (user.role == "Webdev"){
+    if (userRole == "sysadmin"){
         next();
         return;
     }
 
     res.status(403).send({
-        message: "Require Webdev role."
+        message: "Require 'sysadmin' role."
     });
-
     return;
 }
 
 const authJWT = {
     verifyToken: verifyToken,
-    isWebdev: isWebdev
+    isSysadmin: isSysadmin
 };
 
 module.exports = authJWT;

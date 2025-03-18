@@ -20,8 +20,8 @@ module.exports = (app) => {
     );
 
     app.get(
-        "/api/test/webdev",
-        [authJWT.verifyToken, authJWT.isWebdev],
+        "/api/test/sysadmin",
+        [authJWT.verifyToken, authJWT.isSysadmin],
         controller.webdevBoard
     );
 }
