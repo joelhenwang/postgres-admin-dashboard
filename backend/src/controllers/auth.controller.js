@@ -1,4 +1,4 @@
-const db = require('../models/index');
+const db_pool = require('../models/index');
 const config = require('../config/auth.config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcryptjs");
@@ -12,7 +12,8 @@ async function signin(req, res) {
     let query_result = [];
 
     try{
-        query_result = await db.any(query); 
+        var client = await db_pool.connect();
+        query_result = await client.query(query); 
     }
     catch(e){
         console.log(`Error querying for user${json.username}. Error message: ${e}`);
@@ -21,6 +22,9 @@ async function signin(req, res) {
         })
         
     } 
+    finally{
+        client.release();
+    }
 
     if (query_result.length === 0){
         return res.status(404).send({message: "User not found."});

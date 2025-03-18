@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const auth_config = require('../config/auth.config');
-const db = require('../models/index');
+const db_pool = require('../models/index');
 
 
 function verifyToken(req, res, next) {
@@ -10,10 +10,7 @@ function verifyToken(req, res, next) {
         return res.status(403).send({
             message: "No token provided."
         });
-    }
-    console.log(token);
-    console.log(auth_config.secret);
-    
+    } 
     
     jwt.verify(
         token,
@@ -25,7 +22,7 @@ function verifyToken(req, res, next) {
                     error: err
                 });
             }
-
+            
             req.userId = decoded.id;
             next();
         }
@@ -33,12 +30,14 @@ function verifyToken(req, res, next) {
 }
 
 async function isWebdev(req, res, next) { 
+    console.log(req.userId);
     
-    const query = `SELECT id, username, password, role FROM users WHERE if='${req.userId}'`
+    const query = `SELECT id, username, password, role FROM users WHERE id='${req.userId}'`
      let query_result = [];
 
     try{
-        query_result = await db.any(query); 
+        const client = await db_pool.connect();
+        query_result = await client.query(query); 
     }
     catch(e){
         console.log(`Error querying for user with id${req.userId}. Error message: ${e}`);
@@ -47,6 +46,9 @@ async function isWebdev(req, res, next) {
         })
         
     } 
+    finally{
+        client.release();
+    }
 
     if (query_result.length === 0){
         return res.status(404).send({message: "User not found."});

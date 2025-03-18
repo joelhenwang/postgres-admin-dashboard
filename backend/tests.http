@@ -18,7 +18,7 @@ Content-Type: application/json
 
 ### Test jwt token
 GET http://localhost:3000/api/test/webdev
-x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQxODkxMjA4LCJleHAiOjE3NDE4OTMwMDh9.6OvdF_W1bJlFfTQckLvA0DaMxW-4N3sstsCZTzeb8CA
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQxOTAwMDM4LCJleHAiOjE3NDE5MDE4Mzh9.vO4cRVHImuqfKALSrYWv1VODub0iqo0hFxWltRfyYiY
 Content-Type: application/json
 
 {
