@@ -28,8 +28,8 @@ POST http://localhost:3000/api/auth/signin
 
 
 ### Test jwt token
-GET http://localhost:3000/api/test/webdev
-x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQxOTAwMDM4LCJleHAiOjE3NDE5MDE4Mzh9.vO4cRVHImuqfKALSrYWv1VODub0iqo0hFxWltRfyYiY
+GET http://localhost:3000/api/test/sysadmin
+x-access-token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Vsd2FuZy45OCIsInJvbGUiOiJzeXNhZG1pbiIsImlhdCI6MTc0MjMxNDA2MCwiZXhwIjoxNzQyMzE1ODYwfQ.pKNxSP34_jSyrTb3LEbDNXWaSYrnJikjghb8TiCu-JY 
 Content-Type: application/json
 
 {

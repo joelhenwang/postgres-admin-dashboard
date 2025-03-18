@@ -33,7 +33,7 @@ function verifyToken(req, res, next) {
 async function isSysadmin(req, res, next) { 
     console.log(req.userRole);
     
-    if (userRole == "sysadmin"){
+    if (req.userRole == "sysadmin"){
         next();
         return;
     }
