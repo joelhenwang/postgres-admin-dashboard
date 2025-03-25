@@ -2,16 +2,29 @@ const db_pool = require('./index')
 const sql_format = require('pg-format')
 
 
+async function getAll() {
+    const query = 'SELECT * FROM users'
+
+    try{
+        var client = await db_pool.connect();
+        var query_result = await client.query(query);
+    } catch(e){
+        console.log(`Error queuerying for all users. Error message: ${e}`);
+        throw Error(`Error queuerying for all users. Error message: ${e}`);
+    } finally{
+        client.release();
+    }
+    
+    return query_result;
+}
+
 async function getById(id) {
     const query = sql_format('SELECT * FROM users WHERE id = %L', id);
 
-    console.log(query);
-    let query_result = []
-    
     
     try{
         var client = await db_pool.connect();
-        query_result = await client.query(query);
+        var query_result = await client.query(query);
     } catch(e){
         console.log(`Error querying for user with id: ${id}. Error message: ${e}`);
         throw Error(`Error querying for user with id: ${id}`)
@@ -26,8 +39,6 @@ async function getById(id) {
 async function getByUsername(username) {
     const query = sql_format('SELECT * FROM users WHERE username = %L', username);
 
-    console.log(query);
-    
     
     try{
         var client = await db_pool.connect();
@@ -50,11 +61,10 @@ async function insertUser(username, password, role, email) {
         username, password, role, email
     )
     
-    let query_result = [];
 
     try{
         var client = await db_pool.connect();
-        query_result = await client.query(query);
+        var query_result = await client.query(query);
     }catch(e) {
         console.log(`Error inserting user with username: ${username}. Error message: ${e}`);
         throw Error(`Error inserting user with username: ${username}. Error message: ${e}`);
@@ -62,7 +72,6 @@ async function insertUser(username, password, role, email) {
         client.release();
     }
     
-    console.log(query_result);
     return;   
 }
 
@@ -72,11 +81,10 @@ async function deleteByID(id) {
         id
     )
     
-    let query_result = [];
 
     try{
         var client = await db_pool.connect();
-        query_result = await client.query(query);
+        var query_result = await client.query(query);
     }catch(e) {
         console.log(`Error inserting user with username: ${username}. Error message: ${e}`);
         throw Error(`Error inserting user with username: ${username}. Error message: ${e}`);

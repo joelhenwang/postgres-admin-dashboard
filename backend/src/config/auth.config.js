@@ -1,3 +1,4 @@
 const secret = 'asdfg';
  
-module.exports = {secret};
+const { API_SECRET } = process.env;
+module.exports = {API_SECRET};
