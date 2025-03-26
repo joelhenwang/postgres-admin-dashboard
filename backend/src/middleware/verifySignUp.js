@@ -6,7 +6,6 @@ function isEmailOrUserDuplicate(req, res, next) {
     
     try{
         const user = Users.getByUsername(json.username);
-        console.log(user);
         
         if (user.length === 0){
             res.status(400).send({

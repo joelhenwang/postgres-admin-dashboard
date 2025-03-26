@@ -43,7 +43,6 @@ async function getByRestaurant(restaurant) {
     try{
         var client = await db_pool.connect();
         var query_result = await client.query(query);
-        console.log(query_result);
         
     } catch(e){
         console.log(`Error querying for user with restaurant: ${restaurant}. Error message: ${e}`);
@@ -64,7 +63,6 @@ async function getByDate(restaurant) {
     try{
         var client = await db_pool.connect();
         var query_result = await client.query(query);
-        console.log(query_result);
         
     } catch(e){
         console.log(`Error querying for user with restaurant: ${restaurant}. Error message: ${e}`);
@@ -114,7 +112,18 @@ async function deleteByID(id) {
         client.release();
     }
     
-    console.log(query_result);
     return;   
    
 }
+
+
+const Bookings = {
+    getAll: getAll,
+    getById: getById,
+    getByDate: getByDate,
+    getByRestaurant: getByRestaurant,
+    insertUser: insertUser,
+    deleteByID: deleteByID
+};
+
+module.exports = Bookings;

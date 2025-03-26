@@ -38,15 +38,14 @@ async function getById(id) {
 
 async function getByUsername(username) {
     const query = sql_format('SELECT * FROM users WHERE username = %L', username);
-
+    
     
     try{
         var client = await db_pool.connect();
         var query_result = await client.query(query);
-        console.log(query_result);
         
     } catch(e){
-        console.log(`Error querying for user with username: ${username}. Error message: ${e}`);
+        console.log(`Error querying for user with username: ${username}. Error message: ${e.errors}`);
         throw Error(`Error querying for user with username: ${username}`)
     } finally{
         client.release();
@@ -92,12 +91,12 @@ async function deleteByID(id) {
         client.release();
     }
     
-    console.log(query_result);
     return;   
    
 }
 
 const Users = {
+    getAll: getAll,
     getById: getById,
     getByUsername: getByUsername,
     insertUser: insertUser,

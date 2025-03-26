@@ -1,4 +1,4 @@
-const config = require('../config/auth.config');
+const {API_SECRET} = require('../config/auth.config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcryptjs");
 const Users = require('../models/users')
@@ -33,14 +33,11 @@ async function signin(req, res) {
         user = user[0]
     }
     catch(e){
-        console.log(`Error querying for user${json.username}. Error message: ${e}`);
-        res.status(500).send({
+        return res.status(500).send({
             message: "Error querying for user."
-        });
-        
+        }); 
     } 
     
-    console.log(user);
 
     var isPasswordValid = bcrypt.compareSync(json.password, user.password);
     
@@ -53,7 +50,7 @@ async function signin(req, res) {
 
     const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role },
-        config.secret,
+        API_SECRET,
         {
             algorithm: 'HS256',
             allowInsecureKeySizes: true,
