@@ -24,5 +24,11 @@ module.exports = (app) => {
         [authJWT.verifyToken, authJWT.isSysadmin],
         controller.webdevBoard
     );
+    
+    app.get(
+        "/api/users",
+        [authJWT.verifyToken, authJWT.isSysadmin],
+        controller.getAll
+    )
 }
 

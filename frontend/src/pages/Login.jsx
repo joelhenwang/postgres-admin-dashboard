@@ -16,7 +16,7 @@ import MuiCard from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearAuthError } from "../features/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -68,10 +68,18 @@ const Login = () => {
   // Redux
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, error, isAuthenticated } = useSelector(
     (state) => state.auth
   ); // get the auth state from the store
 
+
+  const from = location.state?.from?.pathname ||
+                sessionStorage.getItem('redirectPath') ||
+                '/admin'; 
+                
+                
+                
   // Handle form submission
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -82,21 +90,17 @@ const Login = () => {
 
   // Redirect to home if the user is authenticated
   React.useEffect(() => {
+    sessionStorage.removeItem('redirectPath');
+    
     if (isAuthenticated) {
-      navigate("/home");
+      navigate(from, {replace: true});
     }
-  }, [isAuthenticated, navigate]);
 
-  React.useEffect(() => {
-    if (error) {
+    return () => {
       dispatch(clearAuthError());
     }
-    return () => {
-      if (error) {
-        dispatch(clearAuthError());
-      }
-    }
-  }, [username, password, error, dispatch]);
+  }, [isAuthenticated, navigate, dispatch, from]);
+
 
   return (
     <>

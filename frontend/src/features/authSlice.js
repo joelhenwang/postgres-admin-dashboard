@@ -26,8 +26,11 @@ export const loginUser = createAsyncThunk(
         try {
             const response = await axios.post('http://localhost:3000/api/auth/signin/', { username, password });
             const token = response.data.accessToken;
-            const user = response.data.user; // Assuming the API returns user data
-
+            const user = {
+                id: response.data.id,
+                username: response.data.username,
+                role: response.data.role
+            }
             // Save token to localStorage
             try {
                 localStorage.setItem('token', token);
@@ -53,26 +56,33 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+export const logoutUser = createAsyncThunk(
+    'auth/logoutUser',
+    async(_, thunkAPI) => {
+        // Clear local storage token
+        try {
+            localStorage.removeItem('token');
+        } catch (e) {
+            console.error("Could not remove token from local storage", e);
+        }
+        return null;
+    }
+);
+
 // Auth slice
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers:{
-        logoutUser: (state) => {
-            state.token = null;
-            state.isAuthenticated = false;
-            state.user = null;
-            state.error = null;
-            state.isLoading = false;
-            try{
-                localStorage.removeItem('token');
-            } catch(e){
-                console.error("Could not remove token from local storage", e);
-            }
-        },
+    reducers:{ 
         clearAuthError: (state) => {
             state.error = null;
         },
+        resetAuthState: (state) => {
+            state.token = null;
+            state.user = null;
+            state.isAuthenticated = false;
+            localStorage.removeItem('token');
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -92,10 +102,17 @@ const authSlice = createSlice({
                 state.error = action.payload;
                 
                 state.isLoading = false;
+            })
+            .addCase(logoutUser.fulfilled, (state) => {
+                state.token = null;
+                state.user = null;
+                state.isAuthenticated = false;
+                state.isLoading = false;
+                state.error = null;
             });
     }
 });
         
 
-export const { logoutUser, clearAuthError } = authSlice.actions;
+export const { resetAuthState, clearAuthError } = authSlice.actions;
 export default authSlice.reducer;

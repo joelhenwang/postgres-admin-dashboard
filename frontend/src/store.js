@@ -7,7 +7,7 @@ export const store = configureStore({
   reducer: {
     // Add your reducers here
     auth: authReducer,
-    data: usersDataReducer,
+    users: usersDataReducer,
     bookings: bookingsDataReducer,
     // other reducers...
   },

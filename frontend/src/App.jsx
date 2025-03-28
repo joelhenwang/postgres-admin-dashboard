@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import { store } from './store';
 import { Provider } from 'react-redux';
 import ProtectedRoute from './components/ProtectedRoute';
+import Admin from './pages/Admin';
 
 function App() {
 
@@ -21,7 +22,7 @@ function App() {
             <Routes>
               <Route path='/login' element={<Login />} />
               <Route element={<ProtectedRoute />}>
-                <Route path='/home' element={<Home />} />
+                <Route path='/admin' element={<Admin />} />
               </Route>
             </Routes>
           </main>

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
 
-const ProtectedRoute = ({ redirectPath = '/login' }) => {
-  const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
+const ProtectedRoute = ({ redirectPath = '/login', allowedRoles = [] }) => {
+  const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth);
+  console.log("ProtectedRoute: isAuthenticated: ", isAuthenticated);
   
   // Optional: Show loading state or null while checking auth state
   // This prevents flickering if auth state loads slightly after component mount
@@ -15,7 +16,11 @@ const ProtectedRoute = ({ redirectPath = '/login' }) => {
 
   if (!isAuthenticated) {
     // If not authenticated, redirect to the login page
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to={redirectPath} state={{from: location}} replace />;
+  }
+  
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   // If authenticated, render the child route components
@@ -25,6 +30,7 @@ const ProtectedRoute = ({ redirectPath = '/login' }) => {
 
 ProtectedRoute.propTypes = {
   redirectPath: PropTypes.string,
+  allowedRoles: PropTypes.array,
 };
 
 export default ProtectedRoute;

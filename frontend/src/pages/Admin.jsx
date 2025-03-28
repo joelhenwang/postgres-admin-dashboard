@@ -23,8 +23,15 @@ const Admin = () => {
   React.useEffect(() => {
     // TODO: Add the necessary dispatch calls to fetch the users and bookings
     dispatch(fetchUsers());
-    dispatch(fetchBookings());
-  });
+    dispatch(fetchBookings()); 
+    
+  },[dispatch]);
+  
+  React.useEffect(() => {
+    console.log("State of users and bookings"); 
+    console.log(users);
+    console.log(bookings);
+  }, [users, bookings]);
 
   return (
     <>

@@ -5,6 +5,8 @@ const auth_config = require('../config/auth.config');
 function verifyToken(req, res, next) {
     const token = req.headers["x-access-token"];
     
+    console.log("verifyToken: token: ", token);
+     
     if(!token) {
         return res.status(403).send({
             message: "No token provided."
@@ -13,9 +15,16 @@ function verifyToken(req, res, next) {
     
     jwt.verify(
         token,
-        auth_config.secret,
+        auth_config.API_SECRET,
         (err, decoded) => {
             if(err){
+                
+                if(err.name == "TokenExpiredError"){
+                    return res.status(401).send({
+                        message: "Token expired.",
+                        expired: true
+                    });
+                }
                 return res.status(401).send({
                     message: "Unauthorized.",
                     error: err

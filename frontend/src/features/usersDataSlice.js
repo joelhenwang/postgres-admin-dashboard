@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
+
 
 // initial state
 const initialState = {
@@ -13,12 +14,7 @@ export const fetchUsers = createAsyncThunk(
     'users/fetchUsers',
     async (_, thunkAPI) => {
         try{
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/users', {
-                headers: {
-                    'x-access-token': token
-                }
-            });
+            const response = await axiosInstance.get('/users');
             return response.data;
         } catch (error) {
             let errorMessage = 'Error fetching users';
