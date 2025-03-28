@@ -34,6 +34,7 @@ export const loginUser = createAsyncThunk(
             // Save token to localStorage
             try {
                 localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(user));
             } catch (e) {
                 console.error("Could not save token to local storage", e);
             }

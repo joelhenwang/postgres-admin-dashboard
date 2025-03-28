@@ -5,7 +5,6 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = ({ redirectPath = '/login', allowedRoles = [] }) => {
   const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth);
-  console.log("ProtectedRoute: isAuthenticated: ", isAuthenticated);
   
   // Optional: Show loading state or null while checking auth state
   // This prevents flickering if auth state loads slightly after component mount

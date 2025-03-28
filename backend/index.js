@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
 
 require('./src/routes/auth.routes')(app);
 require('./src/routes/user.routes')(app);
+require('./src/routes/booking.routes')(app);
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)

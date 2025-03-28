@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
+import axiosInstance from '../utils/axiosConfig';
 // initial state
 const initialState = {
   bookings: [],
@@ -14,12 +13,7 @@ export const fetchBookings = createAsyncThunk(
     'bookings/fetchBookings',
     async (_, thunkAPI) => {
         try{
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/bookings', {
-                headers: {
-                    'x-access-token': token
-                }
-            });
+            const response = await axiosInstance.get('/bookings');
             return response.data;
         } catch (error) {
             let errorMessage = 'Error fetching bookings';

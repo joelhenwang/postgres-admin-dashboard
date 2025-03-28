@@ -5,7 +5,6 @@ const auth_config = require('../config/auth.config');
 function verifyToken(req, res, next) {
     const token = req.headers["x-access-token"];
     
-    console.log("verifyToken: token: ", token);
      
     if(!token) {
         return res.status(403).send({
