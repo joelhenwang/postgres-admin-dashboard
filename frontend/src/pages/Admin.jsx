@@ -7,32 +7,23 @@ import Stack from '@mui/material/Stack';
 import SideBar from '../components/SideBar';
 import Table from '../components/Table';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchData } from '../store/dataSlice';
+import { fetchUsers} from '../features/usersDataSlice';
+import { fetchBookings } from '../features/bookingsDataSlice';
 
 
 
 
-const Home = () => {
+const Admin = () => {
   const dispatch = useDispatch();
-  const { data, isLoading, lastFetch, error, currentTable } = useSelector((state) => state.data);
-  // 
+  // TODO: Add the necessary variables to the useSelector function
+  const {users, isLoadingUsers, errorUsers} = useSelector((state) => state.users);
+  const {bookings, isLoadingBookings, errorBookings} = useSelector((state) => state.bookings);
+
+  // Inital call to fetch the data
   React.useEffect(() => {
-    const initialTable = {
-      table: "users"
-    };
-
-    dispatch(fetchData(initialTable));
-  }, [dispatch]);
-
-  React.useEffect(() => {
-    if (!currentTable) return;
-
-    const checkForRefresh = async () => {
-      const now = Date.now();
-      if (!lastFetch || now - lastFetch > 60000) {
-        dispatch(fetchData(currentTable));
-      } 
-    }
+    // TODO: Add the necessary dispatch calls to fetch the users and bookings
+    dispatch(fetchUsers());
+    dispatch(fetchBookings());
   });
 
   return (
@@ -43,7 +34,7 @@ const Home = () => {
         <Box sx={{ display: 'flex', flexGrow: 1, overflow: "auto", flexDirection: 'column', width: "auto", height: "95%", padding: 4}}>
 
           <Typography component={'h2'}>
-            Database/Schema/Table
+            Admin Dashboard
           </Typography>
         
           <Table/>
@@ -54,4 +45,4 @@ const Home = () => {
     )
 }
 
-export default Home
+export default Admin
