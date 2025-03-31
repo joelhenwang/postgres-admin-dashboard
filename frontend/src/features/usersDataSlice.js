@@ -4,9 +4,10 @@ import axiosInstance from '../utils/axiosConfig';
 
 // initial state
 const initialState = {
-  users: [],
+  users: {},
   isLoadingUsers: false,
-  error: null
+  error: null,
+  usersLoaded: false
 };
 
 // fetch users thunk
@@ -42,14 +43,18 @@ const usersSlice = createSlice({
             .addCase(fetchUsers.pending, (state) => {
                 state.isLoadingUsers = true;
                 state.error = null;
+                state.usersLoaded = false;
             })
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.users = action.payload;
                 state.isLoadingUsers = false;
+                state.error = null;
+                state.usersLoaded = true
             })
             .addCase(fetchUsers.rejected, (state, action) => {
                 state.isLoadingUsers = false;
                 state.error = action.payload;
+                state.usersLoaded = false
             });
     } 
 });

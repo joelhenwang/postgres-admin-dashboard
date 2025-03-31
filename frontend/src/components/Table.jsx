@@ -1,67 +1,50 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
+import PropTypes from 'prop-types';
 
-const columns = [
-    { field: 'id', headerName: 'Id' },
-    { field: 'name', headerName: "Name"},
-    { field: 'age', headerName: "Age"},
-    { field: 'department', headerName: "Department"},
-    { field: "salary", headerName: "Salary"}
-]
+function splitPascalCase(string) {
+  let result = string.replace(/([A-Z])/g, " $1");
+  
+  return result;
+};
 
-const rows = [
-    {
-      id: 1,
-      name: "Alice",
-      age: 28,
-      department: "Engineering",
-      salary: 70000
-    },
-    {
-      id: 2,
-      name: "Bob",
-      age: null,
-      department: "Marketing",
-      salary: 60000
-    },
-    {
-      id: 3,
-      name: "Charlie",
-      age: 25,
-      department: "",
-      salary: 55000
-    },
-    {
-      id: 4,
-      name: "David",
-      age: 30,
-      department: "Human Resources",
-      salary: null
-    },
-    {
-      id: 5,
-      name: "Eve",
-      age: null,
-      department: "",
-      salary: null
-    }
-]
+
   
 
 
-export default function Table() {
-    return ( 
-       <Box sx={{ display:"flex" }}>
-        <DataGrid
-            columns={columns}
-            rows={rows}
-            checkboxSelection
-            initialState={{
-                pagination: { paginationModel: {pageSize: 25} },
-            }}
-            pageSizeOptions={[10, 25, 50, 100]}
-        />
-       </Box>
-    );
+export default function Table(props) {
+  
+  
+  let columns = props.columns.map( (column) => {
+    
+    return {
+      field: column.name,
+      headerName: splitPascalCase(column.name)
+    }
+  });
+
+  let rows = props.rows;
+  console.log(rows);
+  console.log(columns);  
+  
+  
+  return ( 
+      <Box sx={{ display:"flex" }}>
+      <DataGrid
+          columns={columns}
+          rows={rows}
+          checkboxSelection
+          initialState={{
+              pagination: { paginationModel: {pageSize: 25} },
+          }}
+          pageSizeOptions={[10, 25, 50, 100]}
+      />
+      </Box>
+  );
 }
+
+Table.propTypes = {
+  columns: PropTypes.array.isRequired,
+  rows: PropTypes.array.isRequired
+};
