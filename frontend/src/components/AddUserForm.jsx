@@ -9,6 +9,7 @@ import {
 	Input,
 	InputLabel,
 } from "@mui/material";
+import PropTypes from "prop-types";
 import axios from "axios";
 import { Add } from "@mui/icons-material";
 
@@ -27,7 +28,7 @@ const style = {
 	p: 4,
 };
 
-const AddUserForm = () => {
+const AddUserForm = (props) => {
 	// States
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -39,11 +40,13 @@ const AddUserForm = () => {
 	async function handleSubmit(event) {
 		event.preventDefault();
 
-		try {
-			const response = await axios.post("http://localhost:3000/api/user/add");
-		} catch (e) {
-			console.error("Could not send request to add user", e);
-		}
+		// try {
+		// 	const response = await axios.post("http://localhost:3000/api/user/add");
+		// } catch (e) {
+		// 	console.error("Could not send request to add user", e);
+		// }
+
+		props.onClose();
 	}
 
 	return (
@@ -104,12 +107,16 @@ const AddUserForm = () => {
 				<Box
 					sx={{ display: "flex", flexDirection: "row", justifyContent: "end" }}
 				>
-					<Button>Cancel</Button>
-					<Button>Add</Button>
+					<Button onClick={props.onClose}>Cancel</Button>
+					<Button type="submit">Add</Button>
 				</Box>
 			</Box>
 		</>
 	);
+};
+
+AddUserForm.propTypes = {
+	onClose: PropTypes.func.isRequired,
 };
 
 export default AddUserForm;

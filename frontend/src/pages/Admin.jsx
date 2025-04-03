@@ -6,7 +6,7 @@ import Table from "../components/Table";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers } from "../features/usersDataSlice";
 import { fetchBookings } from "../features/bookingsDataSlice";
-import AddUserFormModal from "../components/AddUserFormModal";
+import AddUserFormModal from "../components/AddUserForm";
 
 const Admin = () => {
 	const dispatch = useDispatch();

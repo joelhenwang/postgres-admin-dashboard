@@ -2,7 +2,7 @@ import * as React from "react";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { Box, Button, Modal } from "@mui/material";
 import PropTypes from "prop-types";
-import AddUserFormModal from "./AddUserFormModal";
+import AddUserFormModal from "./AddUserForm";
 import { useState } from "react";
 
 function splitPascalCase(string) {
@@ -43,7 +43,7 @@ export default function Table(props) {
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column" }}>
 			<Modal open={modalOpen} onClose={handleModalClose}>
-				<AddUserFormModal></AddUserFormModal>
+				<AddUserFormModal onClose={handleModalClose} />
 			</Modal>
 
 			<Box sx={{ display: "flex", justifyContent: "space-between" }}>
