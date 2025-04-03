@@ -27,7 +27,7 @@ const style = {
 	p: 4,
 };
 
-const AddUserFormModal = () => {
+const AddUserForm = () => {
 	// States
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -112,4 +112,4 @@ const AddUserFormModal = () => {
 	);
 };
 
-export default AddUserFormModal;
+export default AddUserForm;
