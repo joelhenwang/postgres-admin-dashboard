@@ -42,16 +42,10 @@ export default function Table(props) {
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column" }}>
-			<Modal open={modalOpen} onClose={handleModalClose}>
-				<AddUserFormModal onClose={handleModalClose} />
-			</Modal>
+    
 
 			<Box sx={{ display: "flex", justifyContent: "space-between" }}>
 				<h3>{props.title}</h3>
-				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-					<Button>Delete</Button>
-					<Button onClick={handleModalOpen}>Add</Button>
-				</Box>
 			</Box>
 
 			<DataGrid

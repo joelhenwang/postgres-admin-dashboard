@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Modal, Box, Divider, Typography } from "@mui/material";
+import { Modal, Box, Divider, Typography, Button } from "@mui/material";
 import SideBar from "../components/SideBar";
 import Table from "../components/Table";
 import { useDispatch, useSelector } from "react-redux";
@@ -59,22 +59,42 @@ const Admin = () => {
 		setIsLoading,
 		setHasError,
 		setIsDataReady,
-	]);
+	]);	
 
 	const renderUsersTable = () => {
 		if (isDataReady) {
-			return <Table columns={users.fields} rows={users.rows} title="Users" />;
-		}
+			
+			return( 
+			<>
+				<Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+					<AddUserFormModal onClose={() => setModalOpen(false)} />
+				</Modal>
+				<Box sx={{ display: "flex", justifyContent: "space-between" }}>
+					<h3>Users</h3>
+					<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+						<Button>Delete</Button>
+						<Button onClick={() => setModalOpen(true)}>Add</Button>
+					</Box>
+				</Box>
+				<Table columns={users.fields} rows={users.rows} title="Users" />;
+			</>)
+			}
 	};
 
 	const renderBookingTable = () => {
 		if (isDataReady) {
 			return (
+			<>
+			<Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+				<AddUserFormModal onClose={() => setModalOpen(false)} />
+			</Modal>
+			<Box sx={{ display: "flex", justifyContent: "space-between" }}></Box>	
 				<Table
 					columns={bookings.fields}
 					rows={bookings.rows}
 					title="Bookings"
 				/>
+			</>
 			);
 		}
 	};
