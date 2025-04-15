@@ -113,6 +113,24 @@ async function deleteByID(id) {
 	return;
 }
 
+async function batchDeleteByUsernames(usernames) {
+	// Format usernames as a proper SQL array
+	const usernamesArray = usernames.map(username => `'${username}'`);
+	const query = `DELETE FROM users WHERE username IN (${usernamesArray.join(',')})`;
+
+	try {
+		var client = await db_pool.connect();
+		var query_result = await client.query(query);
+	} catch (e) {
+		console.log(
+			`Error deleting users with usernames: ${usernames}. Error message: ${e}`,
+		);
+		throw Error(`Error deleting users with usernames: ${usernames}`);
+	} finally {
+		client.release();
+	}
+}
+
 const Users = {
 	getAll: getAll,
 	safeGetAll: safeGetAll,
@@ -120,6 +138,7 @@ const Users = {
 	getByUsername: getByUsername,
 	insertUser: insertUser,
 	deleteByID: deleteByID,
+	batchDeleteByUsernames: batchDeleteByUsernames,
 };
 
 module.exports = Users;

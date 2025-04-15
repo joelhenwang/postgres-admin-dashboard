@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import {
+	Modal,
 	Button,
 	Box,
 	FormControl,
 	FormLabel,
 	TextField,
+	Input,
+	InputLabel,
 } from "@mui/material";
 import PropTypes from "prop-types";
-import axiosInstance from '../utils/axiosConfig';
-import { useDispatch } from "react-redux";
-import { fetchUsers } from "../features/usersDataSlice";
-
+import axios from "axios";
+import { Add } from "@mui/icons-material";
 
 const style = {
 	position: "absolute",
@@ -27,7 +28,7 @@ const style = {
 	p: 4,
 };
 
-const AddUserForm = (props) => {
+const AddBookingForm = (props) => {
 	// States
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -36,29 +37,27 @@ const AddUserForm = (props) => {
 	const [isWaiting, setIsWaiting] = useState(false);
 	const dispatch = useDispatch();
 
-
 	// Handle submission
 	async function handleSubmit(event) {
 		event.preventDefault();
-		setIsWaiting(true);
-		
+
+
 		const userData = {
 			username,
 			password,
 			role,
 			email
-		};
-		
-		try {
-			const response = await axiosInstance.post("/users/add", userData);
-			await dispatch(fetchUsers()).unwrap();
-			props.onClose();
-		} catch (e) {
-			console.error("Could not send request to add user", e);
-			alert("Could not send request to add user");
-		} finally{
-			setIsWaiting(false);
 		}
+
+		dispatch(addUser(userData));
+
+		// try {
+		// 	const response = await axios.post("http://localhost:3000/api/user/add");
+		// } catch (e) {
+		// 	console.error("Could not send request to add user", e);
+		// }
+
+		props.onClose();
 	}
 
 	return (
@@ -127,8 +126,8 @@ const AddUserForm = (props) => {
 	);
 };
 
-AddUserForm.propTypes = {
+AddBookingForm.propTypes = {
 	onClose: PropTypes.func.isRequired,
- };
+};
 
-export default AddUserForm;
+export default AddBookingForm;

@@ -13,6 +13,7 @@ function splitPascalCase(string) {
 
 export default function Table(props) {
 	const [modalOpen, setModalOpen] = useState();
+	const [selectedRows, setSelectedRows] = useState([]);
 
 	const apiRef = useGridApiRef();
 
@@ -30,20 +31,20 @@ export default function Table(props) {
 	}, [props.columns, props.rows, apiRef]);
 
 	let rows = props.rows;
-	console.log(rows);
-	console.log(columns);
 
-	const handleModalOpen = () => {
-		setModalOpen(true);
-	};
-	const handleModalClose = () => {
-		setModalOpen(false);
+
+	const handleSelectionChange = (selection) => {
+		const selectedRowData = selection.map(id => 
+			rows.find(row => row.id === id)
+		);
+		setSelectedRows(selectedRowData);
+		if (props.onSelectionChange) {
+			props.onSelectionChange(selectedRowData);
+		}
 	};
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column" }}>
-    
-
 			<Box sx={{ display: "flex", justifyContent: "space-between" }}>
 				<h3>{props.title}</h3>
 			</Box>
@@ -53,6 +54,7 @@ export default function Table(props) {
 				columns={columns}
 				rows={rows}
 				checkboxSelection
+				onRowSelectionModelChange={handleSelectionChange}
 				initialState={{
 					pagination: { paginationModel: { pageSize: 25 } },
 				}}
@@ -67,4 +69,5 @@ Table.propTypes = {
 	columns: PropTypes.array.isRequired,
 	rows: PropTypes.array.isRequired,
 	title: PropTypes.string,
+	onSelectionChange: PropTypes.func,
 };
