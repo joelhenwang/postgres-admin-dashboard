@@ -1,26 +1,24 @@
 import * as React from "react";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
-import { Box, Button, Modal } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
-import AddUserFormModal from "./AddUserForm";
 import { useState } from "react";
 
 function splitPascalCase(string) {
 	let result = string.replace(/([A-Z])/g, " $1");
-
 	return result;
 }
 
 export default function Table(props) {
-	const [modalOpen, setModalOpen] = useState();
 	const [selectedRows, setSelectedRows] = useState([]);
-
 	const apiRef = useGridApiRef();
 
 	let columns = props.columns.map((column) => {
 		return {
 			field: column.name,
 			headerName: splitPascalCase(column.name),
+			flex: 1,
+			minWidth: 150,
 		};
 	});
 
@@ -31,7 +29,6 @@ export default function Table(props) {
 	}, [props.columns, props.rows, apiRef]);
 
 	let rows = props.rows;
-
 
 	const handleSelectionChange = (selection) => {
 		const selectedRowData = selection.map(id => 
@@ -44,9 +41,26 @@ export default function Table(props) {
 	};
 
 	return (
-		<Box sx={{ display: "flex", flexDirection: "column" }}>
-			<Box sx={{ display: "flex", justifyContent: "space-between" }}>
-				<h3>{props.title}</h3>
+		<Box sx={{ 
+			display: "flex", 
+			flexDirection: "column",
+			width: '100%',
+			height: '100%',
+			'& .MuiDataGrid-root': {
+				border: 'none',
+			},
+			'& .MuiDataGrid-cell': {
+				borderBottom: '1px solid #e0e0e0',
+			},
+			'& .MuiDataGrid-columnHeaders': {
+				backgroundColor: '#f5f5f5',
+				borderBottom: '2px solid #e0e0e0',
+			},
+		}}>
+			<Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+				<Typography variant="h6" component="h2">
+					{props.title}
+				</Typography>
 			</Box>
 
 			<DataGrid
@@ -58,8 +72,14 @@ export default function Table(props) {
 				initialState={{
 					pagination: { paginationModel: { pageSize: 25 } },
 				}}
-				autosizeOnMount
 				pageSizeOptions={[10, 25, 50, 100]}
+				autoHeight
+				disableRowSelectionOnClick
+				sx={{
+					'& .MuiDataGrid-cell:focus': {
+						outline: 'none',
+					},
+				}}
 			/>
 		</Box>
 	);

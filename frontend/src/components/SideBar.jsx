@@ -95,18 +95,13 @@ export default function SideBar() {
     
     return (
         <Drawer variant="permanent" open={isOpen}>
-            <Box display={"flex"} flexDirection={"row"} justifyContent={"center"}>
-                <SelectTable open={isOpen} />
-            </Box>
-            
-            
             <Box style={{display:'flex', flexDirection: 'column',height:'100%'}}>
                 <SideBarContent/>
             </Box>
             
             <DrawerFooter open={isOpen}>
                 <IconButton onClick={toggleDrawerState} >
-                    {isOpen ? <ChevronLeftIcon/> : <ChevronRightIcon/>}
+                    {isOpen ? <ChevronLeftIcon fontSize='large'/> : <ChevronRightIcon fontSize='large'/>}
                 </IconButton>
             </DrawerFooter>
         </Drawer>
