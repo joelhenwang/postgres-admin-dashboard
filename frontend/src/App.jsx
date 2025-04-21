@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 import ProtectedRoute from './components/ProtectedRoute';
 import Admin from './pages/Admin';
 import Users from './pages/Users';
+import Bookings from './pages/Bookings';
 function App() {
 
   return (
@@ -26,6 +27,9 @@ function App() {
               </Route>
               <Route element={<ProtectedRoute />}>
                 <Route path='/users' element={<Users />} />
+              </Route>
+              <Route element={<ProtectedRoute />}>
+                <Route path='/bookings' element={<Bookings />} />
               </Route>
             </Routes>
           </main>
