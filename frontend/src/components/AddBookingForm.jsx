@@ -6,7 +6,11 @@ import {
 	FormLabel,
 	TextField,
 	Modal,
+	Select,
+	InputLabel,
+	MenuItem,
 } from "@mui/material";
+import { TimePicker} from "@mui/x-date"
 import PropTypes from "prop-types";
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from "react-redux";
@@ -31,28 +35,43 @@ const style = {
 const AddBookingForm = (props) => {
 	// States
 	const [restaurant, setRestaurant] = useState("");
+	const [hour, setHour] = useState("");
 	const [date, setDate] = useState("");
-	const [time, setTime] = useState("");
 	const [guests, setGuests] = useState("");
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [phone, setPhone] = useState("");
+	const [table, setTable] = useState("");
+	const [booking_note, setBookingNote] = useState("");
+	const [booking_state, setBookingState] = useState("");
 	const [isWaiting, setIsWaiting] = useState(false);
 	const dispatch = useDispatch();
 
+	// Handle restaurant selection
+	const handleRestaurantChange = (event) => {
+		setRestaurant(event.target.value);
+	}
+	
 	// Handle submission
 	async function handleSubmit(event) {
 		event.preventDefault();
 		setIsWaiting(true);
 		
+		const user = JSON.parse(sessionStorage.getItem("user"));
+		const username = user.username;
+		
 		const bookingData = {
-			restaurant,
-			date,
-			time,
+			restaurant: restaurant,
+			date: date,
+			hour: hour,
 			guests: parseInt(guests),
-			name,
-			email,
-			phone
+			name: name,
+			email: email,
+			phone: phone,
+			table: table,
+			booking_state: booking_state,
+			booking_note: booking_note,
+			created_by: username,
 		};
 		
 		try {
@@ -79,15 +98,18 @@ const AddBookingForm = (props) => {
 			<Box component="form" onSubmit={handleSubmit} sx={style}>
 				<FormControl disabled={isWaiting}>
 					<FormLabel htmlFor="restaurant">Restaurant</FormLabel>
-					<TextField
+					<Select
+						labelId="restaurant"
 						id="restaurant"
-						name="restaurant"
-						type="text"
-						value={restaurant}
-						onChange={(e) => setRestaurant(e.target.value)}
+						value= {restaurant}
+						label="Restaurant"
+						onChange={handleRestaurantChange}
 						required
-						variant="outlined"
-					/>
+					>
+						<MenuItem value="Sao Sebastiao">Sao Sebastiao</MenuItem>
+						<MenuItem value="Entrecampos">Entrecampos</MenuItem>
+						<MenuItem value="Telheiras">Telheiras</MenuItem>
+					</Select>
 				</FormControl>
 
 				<FormControl disabled={isWaiting}>
@@ -100,30 +122,35 @@ const AddBookingForm = (props) => {
 						onChange={(e) => setDate(e.target.value)}
 						required
 						variant="outlined"
-						InputLabelProps={{
-							shrink: true,
+						slotProps={{
+							inputLabel:{
+								shrink: true,
+							}
 						}}
 					/>
 				</FormControl>
 
 				<FormControl disabled={isWaiting}>
-					<FormLabel htmlFor="time">Time</FormLabel>
+					<FormLabel htmlFor="hour">Hour</FormLabel>
+					
 					<TextField
-						id="time"
-						name="time"
-						type="time"
-						value={time}
-						onChange={(e) => setTime(e.target.value)}
+						id="hour"
+						name="hour"
+						type="hour"
+						value={hour}
+						onChange={(e) => setHour(e.target.value)}
 						required
 						variant="outlined"
-						InputLabelProps={{
-							shrink: true,
+						slotProps={{
+							inputLabel:{
+								shrink: true,
+							}
 						}}
 					/>
 				</FormControl>
 
 				<FormControl disabled={isWaiting}>
-					<FormLabel htmlFor="guests">Number of Guests</FormLabel>
+					<FormLabel htmlFor="guests">No. of Guests</FormLabel>
 					<TextField
 						id="guests"
 						name="guests"
@@ -132,7 +159,7 @@ const AddBookingForm = (props) => {
 						onChange={(e) => setGuests(e.target.value)}
 						required
 						variant="outlined"
-						inputProps={{ min: 1 }}
+						htmlInput={{ min: 1 }}
 					/>
 				</FormControl>
 
@@ -157,7 +184,6 @@ const AddBookingForm = (props) => {
 						type="email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
-						required
 						variant="outlined"
 					/>
 				</FormControl>
@@ -170,7 +196,6 @@ const AddBookingForm = (props) => {
 						type="tel"
 						value={phone}
 						onChange={(e) => setPhone(e.target.value)}
-						required
 						variant="outlined"
 					/>
 				</FormControl>

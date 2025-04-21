@@ -17,6 +17,7 @@ const Bookings = () => {
   const { bookings, isLoadingBookings, errorBookings } = useSelector(
     (state) => state.bookings
   );
+  
 
   // Initial data fetch
   React.useEffect(() => {
