@@ -12,29 +12,34 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Admin from './pages/Admin';
 import Users from './pages/Users';
 import Bookings from './pages/Bookings';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/pt';
 function App() {
 
   return (
     <>
-      <CssBaseline enableColorScheme/>
-      <Provider store={store}>
-        <div className='app' >
-          <main>
-            <Routes>
-              <Route path='/login' element={<Login />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path='/admin' element={<Admin />} />
-              </Route>
-              <Route element={<ProtectedRoute />}>
-                <Route path='/users' element={<Users />} />
-              </Route>
-              <Route element={<ProtectedRoute />}>
-                <Route path='/bookings' element={<Bookings />} />
-              </Route>
-            </Routes>
-          </main>
-        </div>
-      </Provider>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt">
+        <CssBaseline enableColorScheme/>
+        <Provider store={store}>
+          <div className='app' >
+            <main>
+              <Routes>
+                <Route path='/login' element={<Login />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route path='/admin' element={<Admin />} />
+                </Route>
+                <Route element={<ProtectedRoute />}>
+                  <Route path='/users' element={<Users />} />
+                </Route>
+                <Route element={<ProtectedRoute />}>
+                  <Route path='/bookings' element={<Bookings />} />
+                </Route>
+              </Routes>
+            </main>
+          </div>
+        </Provider>
+      </LocalizationProvider>
     </>
     )
 }

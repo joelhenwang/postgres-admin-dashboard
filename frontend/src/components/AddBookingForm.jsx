@@ -10,9 +10,10 @@ import {
 	InputLabel,
 	MenuItem,
 } from "@mui/material";
-import { TimePicker} from "@mui/x-date"
+import { TimePicker} from "@mui/x-date-pickers";
 import PropTypes from "prop-types";
 import axiosInstance from '../utils/axiosConfig';
+import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { fetchBookings } from "../features/bookingsDataSlice";
 
@@ -35,7 +36,7 @@ const style = {
 const AddBookingForm = (props) => {
 	// States
 	const [restaurant, setRestaurant] = useState("");
-	const [hour, setHour] = useState("");
+	const [hour, setHour] = useState(dayjs());
 	const [date, setDate] = useState("");
 	const [guests, setGuests] = useState("");
 	const [name, setName] = useState("");
@@ -47,11 +48,71 @@ const AddBookingForm = (props) => {
 	const [isWaiting, setIsWaiting] = useState(false);
 	const dispatch = useDispatch();
 
+	// Constants
+	var booking_time_options_lunch = [
+		"12:00",
+		"12:30",
+		"13:00",
+		"13:30",
+		"14:00",
+		"14:30"
+	];
+
+	var booking_time_options_dinner = [
+		"19:30",
+		"20:00",
+		"20:30",
+		"21:00",
+		"21:30",
+		"22:00",
+		"22:00"
+	];
+
+	const choosenDateIsToday = (selectedDate) => {
+		const today = new Date();
+		
+		const formatter = new Intl.DateTimeFormat("en-GB", { dateStyle: "short" });	
+		const formattedToday = formatter.format(today);
+		
+		selectedDate = new Date(selectedDate);
+		selectedDate = formatter.format(selectedDate);
+		
+		if (selectedDate == formattedToday) {
+			return true;
+		}
+		return false;
+	}	
+
+
 	// Handle restaurant selection
 	const handleRestaurantChange = (event) => {
 		setRestaurant(event.target.value);
 	}
 	
+	// Handle booking date selection
+	const handleDateChange = (event) => {
+		setDate(event.target.value);
+		if (choosenDateIsToday(event.target.value)) {
+			const currentHour = new Date().getHours();
+			const currentMinute = new Date().getMinutes();
+
+			if (currentHour >= 14 && currentMinute >= 30 ){
+				booking_time_options_lunch = [];
+			} else if (currentHour <= 14 && currentMinute <= 30) {
+				booking_time_options_lunch = [
+					"12:00",
+					"12:30",
+					"13:00",
+					"13:30",
+					"14:00",
+					"14:30"
+				];
+			}
+		}
+	}
+	
+
+
 	// Handle submission
 	async function handleSubmit(event) {
 		event.preventDefault();
@@ -119,7 +180,7 @@ const AddBookingForm = (props) => {
 						name="date"
 						type="date"
 						value={date}
-						onChange={(e) => setDate(e.target.value)}
+						onChange={handleDateChange}
 						required
 						variant="outlined"
 						slotProps={{
@@ -133,20 +194,16 @@ const AddBookingForm = (props) => {
 				<FormControl disabled={isWaiting}>
 					<FormLabel htmlFor="hour">Hour</FormLabel>
 					
-					<TextField
+					<TimePicker
 						id="hour"
 						name="hour"
-						type="hour"
 						value={hour}
-						onChange={(e) => setHour(e.target.value)}
-						required
-						variant="outlined"
-						slotProps={{
-							inputLabel:{
-								shrink: true,
-							}
+						onChange={(newValue) => {
+							setHour(newValue);
 						}}
-					/>
+						views={["hours", "minutes"]}
+						disablePast
+					></TimePicker>
 				</FormControl>
 
 				<FormControl disabled={isWaiting}>
@@ -159,7 +216,9 @@ const AddBookingForm = (props) => {
 						onChange={(e) => setGuests(e.target.value)}
 						required
 						variant="outlined"
-						htmlInput={{ min: 1 }}
+						slotProps={{
+							htmlInput: {'min': 1}
+						}}
 					/>
 				</FormControl>
 
