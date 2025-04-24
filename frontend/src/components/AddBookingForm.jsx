@@ -203,6 +203,16 @@ const AddBookingForm = (props) => {
 						}}
 						views={["hours", "minutes"]}
 						disablePast
+						skipDisabled
+						minTime={dayjs("12:00")}
+						maxTime={dayjs("22:00")}
+						minutesStep={30}
+						timeSteps={
+							{
+								hours: 1,
+								minutes: 30,
+							}
+						}
 					></TimePicker>
 				</FormControl>
 
