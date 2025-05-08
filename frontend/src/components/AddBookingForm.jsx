@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Import useEffect
 import {
 	Button,
 	Box,
@@ -9,13 +9,17 @@ import {
 	Select,
 	InputLabel,
 	MenuItem,
+	Container,
 } from "@mui/material";
-import { TimePicker} from "@mui/x-date-pickers";
+import { TimePicker, DatePicker} from "@mui/x-date-pickers";
 import PropTypes from "prop-types";
 import axiosInstance from '../utils/axiosConfig';
 import dayjs from "dayjs";
-import { useDispatch } from "react-redux";
+import isTodayPlugin from 'dayjs/plugin/isToday'; // Import isToday plugin
+import { useDispatch, useSelector } from "react-redux";
 import { fetchBookings } from "../features/bookingsDataSlice";
+
+dayjs.extend(isTodayPlugin); // Extend dayjs with the plugin
 
 const style = {
 	position: "absolute",
@@ -36,8 +40,8 @@ const style = {
 const AddBookingForm = (props) => {
 	// States
 	const [restaurant, setRestaurant] = useState("");
-	const [hour, setHour] = useState(dayjs());
-	const [date, setDate] = useState("");
+	const [hour, setHour] = useState(null); // Initialize hour as null
+	const [date, setDate] = useState(null);
 	const [guests, setGuests] = useState("");
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -46,94 +50,107 @@ const AddBookingForm = (props) => {
 	const [booking_note, setBookingNote] = useState("");
 	const [booking_state, setBookingState] = useState("");
 	const [isWaiting, setIsWaiting] = useState(false);
+	const [meal, setMeal] = useState("");
+	const [maxBookTime, setMaxBookTime] = useState(null);
+	const [minBookTime, setMinBookTime] = useState(null);
+	const [isDateToday, setIsDateToday] = useState(false); // State to track if selected date is today
+	
+	const {user, error} = useSelector((state) => state.auth); // Get user and error from auth slice
+
 	const dispatch = useDispatch();
 
-	// Constants
-	var booking_time_options_lunch = [
-		"12:00",
-		"12:30",
-		"13:00",
-		"13:30",
-		"14:00",
-		"14:30"
-	];
 
-	var booking_time_options_dinner = [
-		"19:30",
-		"20:00",
-		"20:30",
-		"21:00",
-		"21:30",
-		"22:00",
-		"22:00"
-	];
+	// Effect to update time constraints when date or meal changes
+	useEffect(() => {
+		if (date && meal) {
+			const selectedDayjsDate = dayjs(date);
+			const today = dayjs();
+			const isToday = selectedDayjsDate.isToday();
+			setIsDateToday(isToday); // Update the state
 
-	const choosenDateIsToday = (selectedDate) => {
-		const today = new Date();
-		
-		const formatter = new Intl.DateTimeFormat("en-GB", { dateStyle: "short" });	
-		const formattedToday = formatter.format(today);
-		
-		selectedDate = new Date(selectedDate);
-		selectedDate = formatter.format(selectedDate);
-		
-		if (selectedDate == formattedToday) {
-			return true;
+			let minTime, maxTime;
+
+			if (meal === "Lunch") {
+				minTime = selectedDayjsDate.set("hour", 12).set("minute", 0).set("second", 0);
+				maxTime = selectedDayjsDate.set("hour", 15).set("minute", 0).set("second", 0);
+			} else if (meal === "Dinner") {
+				minTime = selectedDayjsDate.set("hour", 19).set("minute", 30).set("second", 0);
+				maxTime = selectedDayjsDate.set("hour", 23).set("minute", 0).set("second", 0);
+			}
+
+			// If the selected date is today, ensure minTime is not in the past relative to now
+			if (isToday && minTime && today.isAfter(minTime)) {
+				// Round current time up to the nearest 30 minutes for comparison/setting
+				const currentMinutes = today.minute();
+				const roundedUpTime = currentMinutes < 30
+					? today.minute(30).second(0).millisecond(0)
+					: today.add(1, 'hour').minute(0).second(0).millisecond(0);
+
+				// Only update minTime if the rounded up current time is later than the meal start time
+				if (roundedUpTime.isAfter(minTime)) {
+					minTime = roundedUpTime;
+				}
+			}
+
+			setMinBookTime(minTime);
+			setMaxBookTime(maxTime);
+
+			// Reset hour if it's outside the new valid range
+
+		} else {
+			// Reset times if date or meal is not selected
+			setMinBookTime(null);
+			setMaxBookTime(null);
+			setIsDateToday(false);
 		}
-		return false;
-	}	
-
+	}, [date, meal]); // Add hour to dependencies to re-validate
 
 	// Handle restaurant selection
 	const handleRestaurantChange = (event) => {
 		setRestaurant(event.target.value);
 	}
-	
+
 	// Handle booking date selection
 	const handleDateChange = (event) => {
-		setDate(event.target.value);
-		if (choosenDateIsToday(event.target.value)) {
-			const currentHour = new Date().getHours();
-			const currentMinute = new Date().getMinutes();
-
-			if (currentHour >= 14 && currentMinute >= 30 ){
-				booking_time_options_lunch = [];
-			} else if (currentHour <= 14 && currentMinute <= 30) {
-				booking_time_options_lunch = [
-					"12:00",
-					"12:30",
-					"13:00",
-					"13:30",
-					"14:00",
-					"14:30"
-				];
-			}
-		}
+		setDate(dayjs(event.$d)); // Use dayjs to handle date
+		
+		// Reset meal and hour when date changes
+		setMeal("");
+		setHour(null);
 	}
-	
 
+	// Handle meal selection
+	const handleMealChange = (event) => {
+		setMeal(event.target.value);
+		// Reset hour when meal changes
+		setHour(null);
+	}
 
 	// Handle submission
 	async function handleSubmit(event) {
 		event.preventDefault();
 		setIsWaiting(true);
 		
-		const user = JSON.parse(sessionStorage.getItem("user"));
+		const user = JSON.parse(localStorage.getItem("user"));
 		const username = user.username;
 		
 		const bookingData = {
-			restaurant: restaurant,
-			date: date,
-			hour: hour,
-			guests: parseInt(guests),
-			name: name,
-			email: email,
-			phone: phone,
-			table: table,
+			booking_restaurant: restaurant,
+			booking_date: date.format('DD-MM-YYYY'),
+			booking_hour: hour ? hour.format('HH:mm') : null, // Format hour before sending
+			booking_guests: parseInt(guests),
+			booking_name: name,
+			booking_email: email,
+			booking_contact: phone,
+			booking_table: table,
 			booking_state: booking_state,
 			booking_note: booking_note,
-			created_by: username,
+			booking_created_by: username,
 		};
+
+		console.log("Booking Data:", bookingData); // Log the booking data
+		console.log("date: ", date.format('DD-MM-YYYY'));
+		
 		
 		try {
 			const response = await axiosInstance.post("/bookings/add", bookingData);
@@ -157,6 +174,69 @@ const AddBookingForm = (props) => {
 			aria-describedby="modal-modal-description"
 		>
 			<Box component="form" onSubmit={handleSubmit} sx={style}>
+
+				<FormControl disabled={isWaiting}>
+					<FormLabel htmlFor="date">Date</FormLabel>
+					<DatePicker
+						id="date"
+						name="date"
+						value={date}
+						onChange={handleDateChange}
+						required
+						disablePast // Prevent selecting past dates
+						views={["year", "month", "day"]} // Show year, month, and day views
+
+
+					>
+					</DatePicker>
+				</FormControl>
+
+				<FormControl disabled={isWaiting} sx={{padding: 0}}>
+					<FormLabel htmlFor="hour">Hour</FormLabel>	
+						<div style={{display: "flex", flexDirection: "row", gap: "10px"}}>	
+							<Select
+								labelId="meal-label" // Add a labelId for accessibility
+								id="meal"
+								value= {meal}
+								// label="Lunch/Dinner" // Use InputLabel component instead for Select
+								onChange={handleMealChange}
+								required
+								sx={{width: "100%"}}
+								disabled={!date} // Disable if date is not selected
+								displayEmpty // Allows placeholder/label behavior
+							>
+								{/* Consider adding an InputLabel sibling component */}
+								<MenuItem value="" disabled>Select Meal</MenuItem>
+								<MenuItem value="Lunch">Lunch</MenuItem>
+								<MenuItem value="Dinner">Dinner</MenuItem>
+							</Select>
+							<TimePicker
+								id="hour"
+								name="hour"
+								value={hour}
+								onChange={(newValue) => {
+									setHour(newValue);
+								}}
+								views={["hours", "minutes"]}
+								disabled={!meal || !minBookTime || !maxBookTime} // Disable if meal/times not set
+								sx={{width: "100%"}}
+								disablePast={isDateToday} // Only disable past if date is today
+								skipDisabled
+								minTime={minBookTime} // Use state variable
+								maxTime={maxBookTime} // Use state variable
+								timeSteps={
+									{
+										hours: 1,
+										minutes: 30,
+									}
+								}
+								ampm={false} // Use 24hr format
+								// timeSteps prop might not be needed if min/max/step cover it
+							/>
+						</div> 
+					 
+				</FormControl>
+
 				<FormControl disabled={isWaiting}>
 					<FormLabel htmlFor="restaurant">Restaurant</FormLabel>
 					<Select
@@ -174,49 +254,6 @@ const AddBookingForm = (props) => {
 				</FormControl>
 
 				<FormControl disabled={isWaiting}>
-					<FormLabel htmlFor="date">Date</FormLabel>
-					<TextField
-						id="date"
-						name="date"
-						type="date"
-						value={date}
-						onChange={handleDateChange}
-						required
-						variant="outlined"
-						slotProps={{
-							inputLabel:{
-								shrink: true,
-							}
-						}}
-					/>
-				</FormControl>
-
-				<FormControl disabled={isWaiting}>
-					<FormLabel htmlFor="hour">Hour</FormLabel>
-					
-					<TimePicker
-						id="hour"
-						name="hour"
-						value={hour}
-						onChange={(newValue) => {
-							setHour(newValue);
-						}}
-						views={["hours", "minutes"]}
-						disablePast
-						skipDisabled
-						minTime={dayjs("12:00")}
-						maxTime={dayjs("22:00")}
-						minutesStep={30}
-						timeSteps={
-							{
-								hours: 1,
-								minutes: 30,
-							}
-						}
-					></TimePicker>
-				</FormControl>
-
-				<FormControl disabled={isWaiting}>
 					<FormLabel htmlFor="guests">No. of Guests</FormLabel>
 					<TextField
 						id="guests"
@@ -226,9 +263,20 @@ const AddBookingForm = (props) => {
 						onChange={(e) => setGuests(e.target.value)}
 						required
 						variant="outlined"
-						slotProps={{
-							htmlInput: {'min': 1}
+						InputProps={{ // Correct prop for input attributes
+							inputProps: { min: 1 }
 						}}
+					/>
+				</FormControl>
+				
+				<FormControl disabled={isWaiting}>
+					<FormLabel htmlFor="table">Table</FormLabel>
+					<TextField
+						id="table"
+						name="table"
+						value={table}
+						onChange={(e) => setTable(e.target.value)}
+						variant="outlined"
 					/>
 				</FormControl>
 
@@ -268,13 +316,40 @@ const AddBookingForm = (props) => {
 						variant="outlined"
 					/>
 				</FormControl>
-
+				
+				<FormControl disabled={isWaiting}>
+					<FormLabel htmlFor="state">State</FormLabel>
+					<Select
+						labelId="state"
+						id="state"
+						value= {booking_state}
+						label="State"
+						onChange={(e) => setBookingState(e.target.value)}
+						required
+					>
+						<MenuItem value="Unconfirmed">Unconfirmed</MenuItem>
+						<MenuItem value="Confirmed">Confirmed</MenuItem>
+						<MenuItem value="Arrived">Arrived</MenuItem>
+					</Select>
+				</FormControl>
+				<FormControl disabled={isWaiting}>
+					<FormLabel htmlFor="note">Note</FormLabel>
+					<TextField
+						id="note"
+						name="note"
+						value={booking_note}
+						onChange={(e) => setBookingNote(e.target.value)}
+						variant="outlined"
+					/>
+				</FormControl>
 				<Box></Box>
 				<Box
-					sx={{ display: "flex", flexDirection: "row", justifyContent: "end" }}
+					sx={{ display: "flex", flexDirection: "row", justifyContent: "end", gap: 1, gridColumn: '1 / -1' }} // Span across columns and add gap
 				>
-					<Button onClick={props.onClose}>Cancel</Button>
-					<Button type="submit">Add</Button>
+					<Button onClick={props.onClose} variant="outlined" disabled={isWaiting}>Cancel</Button>
+					<Button type="submit" variant="contained" disabled={isWaiting || !hour}> {/* Disable submit if waiting or hour not selected */}
+						{isWaiting ? 'Adding...' : 'Add Booking'}
+					</Button>
 				</Box>
 			</Box>
 		</Modal>

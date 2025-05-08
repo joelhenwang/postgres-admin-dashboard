@@ -16,4 +16,10 @@ module.exports = (app) => {
         [authJWT.verifyToken, authJWT.isSysadmin],
         controller.getAll
     );
+    
+    app.post(
+        "/api/bookings/add",
+        [authJWT.verifyToken, authJWT.isSysadmin],
+        controller.insertBooking
+    );
 }
