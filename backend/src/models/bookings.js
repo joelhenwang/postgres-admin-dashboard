@@ -2,7 +2,7 @@ const db_pool = require('./index');
 const sql_format = require('pg-format');
 
 async function getAll() {
-    const query = 'SELECT * FROM bookings'
+    const query = sql_format('SELECT * FROM bookings');
 
     try{
         var client = await db_pool.connect();
@@ -10,12 +10,18 @@ async function getAll() {
         
         // Format the time values before returning
         if (query_result.rows) {
+            
             query_result.rows = query_result.rows.map(row => {
                 if (row.booking_hour) {
                     row.booking_hour = row.booking_hour.substring(0, 5);
                 }
                 if (row.booking_date) {
-                    row.booking_date =  row.booking_date.toISOString().substring(0, 10);
+                    // Convert the date to local timezone and format as YYYY-MM-DD
+                    const date = new Date(row.booking_date);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    row.booking_date = `${year}-${month}-${day}`;
                 }
                 return row;
             });
@@ -89,6 +95,11 @@ async function getByDate(restaurant) {
 
 
 async function insertBooking(date, hour, name, restaurant, guests, email, contact, table, state, note, created_by){
+    // Validate date format
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw Error('Invalid date format. Expected YYYY-MM-DD');
+    }
+
     console.log(`Inserting booking with restaurant: ${restaurant}`);
     console.log(`Inserting booking with date: ${date}`);
     console.log(`Inserting booking with hour: ${hour}`);
@@ -103,9 +114,8 @@ async function insertBooking(date, hour, name, restaurant, guests, email, contac
     
     const query = sql_format(
         'INSERT INTO bookings (booking_date, booking_hour, booking_name, booking_restaurant, booking_guests, booking_email, booking_contact, booking_table, booking_state, booking_note,  created_by, updated_at, created_at) VALUES (%L,%L,%L,%L,%L,%L,%L,%L,%L,%L,%L,NOW(),NOW())',
-        date, hour, name, restaurant, guests,email, contact, table, state, note, created_by
-    )
-    
+        date, hour, name, restaurant, guests, email, contact, table, state, note, created_by
+    );
 
     try{
         var client = await db_pool.connect();
@@ -144,6 +154,11 @@ async function deleteByIDs(ids) {
 }
 
 async function updateBooking(id, date, hour, name, restaurant, guests, email, contact, table, state, note) {
+    // Validate date format
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw Error('Invalid date format. Expected YYYY-MM-DD');
+    }
+
     const query = sql_format(
         'UPDATE bookings SET booking_date = %L, booking_hour = %L, booking_name = %L, booking_restaurant = %L, booking_guests = %L, booking_email = %L, booking_contact = %L, booking_table = %L, booking_state = %L, booking_note = %L, updated_at = NOW() WHERE id = %L',
         date, hour, name, restaurant, guests, email, contact, table, state, note, id
