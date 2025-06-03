@@ -22,4 +22,16 @@ module.exports = (app) => {
         [authJWT.verifyToken, authJWT.isSysadmin],
         controller.insertBooking
     );
+    
+    app.delete(
+        "/api/bookings/delete/batch",
+        [authJWT.verifyToken, authJWT.isSysadmin],
+        controller.deleteBookings
+    );
+    
+    app.put(
+        "/api/bookings/update/:id",
+        [authJWT.verifyToken, authJWT.isSysadmin],
+        controller.updateBooking
+    );
 }

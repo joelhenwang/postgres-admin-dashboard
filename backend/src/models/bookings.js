@@ -7,6 +7,20 @@ async function getAll() {
     try{
         var client = await db_pool.connect();
         var query_result = await client.query(query);
+        
+        // Format the time values before returning
+        if (query_result.rows) {
+            query_result.rows = query_result.rows.map(row => {
+                if (row.booking_hour) {
+                    row.booking_hour = row.booking_hour.substring(0, 5);
+                }
+                if (row.booking_date) {
+                    console.log(row.booking_date);
+                    row.booking_date =  row.booking_date.toISOString().substring(0, 10);
+                }
+                return row;
+            });
+        }
     } catch(e){
         console.log(`Error queuerying for all bookings. Error message: ${e}`);
         throw Error(`Error queuerying for all bookings. Error message: ${e}`);
@@ -108,39 +122,20 @@ async function insertBooking(date, hour, name, restaurant, guests, email, contac
 }
 
 
-async function insertUser(restaurant, password, role, email) {
+
+
+async function deleteByIDs(ids) {
     const query = sql_format(
-        'INSERT INTO bookings (restaurant, password, role, email) VALUES (%L,%L,%L,%L)',
-        restaurant, password, role, email
+        'DELETE FROM bookings WHERE id IN (%L)',
+        ids
     )
-    
 
     try{
         var client = await db_pool.connect();
         var query_result = await client.query(query);
     }catch(e) {
-        console.log(`Error inserting user with restaurant: ${restaurant}. Error message: ${e}`);
-        throw Error(`Error inserting user with restaurant: ${restaurant}. Error message: ${e}`);
-    }finally {
-        client.release();
-    }
-    
-    return;   
-}
-
-async function deleteByID(id) {
-    const query = sql_format(
-        'DELETE FROM bookings WHERE id = %L',
-        id
-    )
-    
-
-    try{
-        var client = await db_pool.connect();
-        var query_result = await client.query(query);
-    }catch(e) {
-        console.log(`Error inserting user with restaurant: ${restaurant}. Error message: ${e}`);
-        throw Error(`Error inserting user with restaurant: ${restaurant}. Error message: ${e}`);
+        console.log(`Error deleting bookings with ids: ${ids}. Error message: ${e}`);
+        throw Error(`Error deleting bookings with ids: ${ids}. Error message: ${e}`);
     }finally {
         client.release();
     }
@@ -149,6 +144,22 @@ async function deleteByID(id) {
    
 }
 
+async function updateBooking(id, date, hour, name, restaurant, guests, email, contact, table, state, note) {
+    const query = sql_format(
+        'UPDATE bookings SET booking_date = %L, booking_hour = %L, booking_name = %L, booking_restaurant = %L, booking_guests = %L, booking_email = %L, booking_contact = %L, booking_table = %L, booking_state = %L, booking_note = %L, updated_at = NOW() WHERE id = %L',
+        date, hour, name, restaurant, guests, email, contact, table, state, note, id
+    );
+
+    try {
+        var client = await db_pool.connect();
+        await client.query(query);
+    } catch(e) {
+        console.log(`Error updating booking with id: ${id}. Error message: ${e}`);
+        throw Error(`Error updating booking with id: ${id}. Error message: ${e}`);
+    } finally {
+        client.release();
+    }
+}
 
 const Bookings = {
     getAll: getAll,
@@ -156,7 +167,8 @@ const Bookings = {
     getByDate: getByDate,
     getByRestaurant: getByRestaurant,
     insertBooking: insertBooking,
-    deleteByID: deleteByID
+    deleteByIDs: deleteByIDs,
+    updateBooking: updateBooking
 };
 
 module.exports = Bookings;

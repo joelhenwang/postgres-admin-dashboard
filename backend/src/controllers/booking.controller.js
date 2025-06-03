@@ -11,6 +11,48 @@ exports.getAll = async function getAll(req, res) {
     }
 }
 
+exports.deleteBookings = async function deleteBookings(req, res) {
+    const bookingIds = req.body.bookingIds;
+    try {
+        await Bookings.deleteByIDs(bookingIds);
+        return res.status(200).send({
+            message: "Bookings deleted successfully"
+        });
+    } catch(e){
+        return res.status(500).send({
+            message: "Error deleting bookings."
+        });
+    }
+}
+
+exports.updateBooking = async function updateBooking(req, res) {
+    const bookingId = req.params.id;
+    const bookingData = req.body;
+    
+    try {
+        await Bookings.updateBooking(
+            bookingId,
+            bookingData.booking_date,
+            bookingData.booking_hour,
+            bookingData.booking_name,
+            bookingData.booking_restaurant,
+            bookingData.booking_guests,
+            bookingData.booking_email,
+            bookingData.booking_contact,
+            bookingData.booking_table,
+            bookingData.booking_state,
+            bookingData.booking_note
+        );
+        return res.status(200).send({
+            message: "Booking updated successfully"
+        });
+    } catch(e) {
+        return res.status(500).send({
+            message: "Error updating booking."
+        });
+    }
+}
+
 exports.insertBooking = async function insertBooking(req, res) {
     const booking = req.body;
     const booking_date = booking.booking_date;
