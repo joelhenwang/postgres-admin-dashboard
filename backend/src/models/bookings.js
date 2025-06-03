@@ -15,7 +15,6 @@ async function getAll() {
                     row.booking_hour = row.booking_hour.substring(0, 5);
                 }
                 if (row.booking_date) {
-                    console.log(row.booking_date);
                     row.booking_date =  row.booking_date.toISOString().substring(0, 10);
                 }
                 return row;
@@ -50,8 +49,8 @@ async function getById(id) {
 }
 
 
-async function getByRestaurant(restaurant) {
-    const query = sql_format('SELECT * FROM bookings WHERE booking_restaurant = %L', restaurant);
+async function getAllForRestaurant(restaurant) {
+    const query = sql_format('SELECT booking_date, booking_hour, booking_name, booking_guests, booking_email, booking_contact, booking_table, booking_state, booking_note FROM bookings WHERE booking_restaurant = %L', restaurant);
 
     
     try{
@@ -165,7 +164,7 @@ const Bookings = {
     getAll: getAll,
     getById: getById,
     getByDate: getByDate,
-    getByRestaurant: getByRestaurant,
+    getByRestaurant: getAllForRestaurant,
     insertBooking: insertBooking,
     deleteByIDs: deleteByIDs,
     updateBooking: updateBooking

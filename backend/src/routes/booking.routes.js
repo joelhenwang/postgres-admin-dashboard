@@ -17,6 +17,12 @@ module.exports = (app) => {
         controller.getAll
     );
     
+    app.get(
+        "/api/bookings/:restaurant",
+        [authJWT.verifyToken, authJWT.isRestaurant],
+        controller.getAllForRestaurant
+    );
+    
     app.post(
         "/api/bookings/add",
         [authJWT.verifyToken, authJWT.isSysadmin],

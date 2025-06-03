@@ -11,6 +11,18 @@ exports.getAll = async function getAll(req, res) {
     }
 }
 
+exports.getAllForRestaurant = async function getAllForRestaurant(req, res) {
+    const restaurant = req.params.restaurant;
+    try {
+        var bookings = await Bookings.getAllForRestaurant(restaurant);
+        return res.status(200).send(bookings);
+    } catch(e){
+        return res.status(500).send({
+            message: "Error querying for bookings."
+        });
+    }
+}
+
 exports.deleteBookings = async function deleteBookings(req, res) {
     const bookingIds = req.body.bookingIds;
     try {

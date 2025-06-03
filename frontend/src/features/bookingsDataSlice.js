@@ -13,11 +13,18 @@ export const fetchBookings = createAsyncThunk(
     'bookings/fetchBookings',
     async (_, thunkAPI) => {
         try{
-            const response = await axiosInstance.get('/bookings');
+            const user = localStorage.getItem('user');
+            const userObject = JSON.parse(user);
+            const userRole = userObject.role;
             
-            
+            if (userRole === 'sysadmin' || userRole === 'manager') {
+                const response = await axiosInstance.get('/bookings');
+                return response.data;
+            } else {
+                const response = await axiosInstance.get(`/bookings/${userRole}`);
+                return response.data;
+            }
 
-            return response.data;
         } catch (error) {
             let errorMessage = 'Error fetching bookings';
             if (error.response && error.response.data) {
@@ -28,7 +35,7 @@ export const fetchBookings = createAsyncThunk(
         }
     }
 );
-
+  
 // bookings slice
 const bookingsSlice = createSlice({
     name: 'bookings',

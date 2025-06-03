@@ -51,9 +51,34 @@ async function isSysadmin(req, res, next) {
     return;
 }
 
+async function isManager(req, res, next) {
+    if (req.userRole == "manager" || req.userRole == "sysadmin"){
+        next();
+        return;
+    }
+
+    res.status(403).send({
+        message: "Require 'manager' role."
+    });
+    return;
+}
+
+async function isRestaurant(req, res, next) {
+    if (req.userRole in ["sao_sebastiao", "entrecampos", "telheiras", "manager", "sysadmin"]){
+        next();
+        return;
+    }
+
+    res.status(403).send({
+        message: "Require 'restaurant' role."
+    });
+    return;
+}
 const authJWT = {
     verifyToken: verifyToken,
-    isSysadmin: isSysadmin
+    isSysadmin: isSysadmin,
+    isManager: isManager,
+    isRestaurant: isRestaurant
 };
 
 module.exports = authJWT;
