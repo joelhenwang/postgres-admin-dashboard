@@ -19,7 +19,7 @@ export default function Table(props) {
 	const handleEdit = (row) => {
 		setEditingBooking(row);
 	};
-
+	
 	let columns = props.columns.map((column) => {
 		return {
 			field: column.name,
@@ -46,11 +46,6 @@ export default function Table(props) {
 		});
 	}
 
-	// React.useEffect(() => {
-	// 	if (props.columns.length > 0 && props.rows.length > 0) {
-	// 		apiRef.current.autosizeColumns({ includeHeaders: true });
-	// 	}
-	// }, [props.columns, props.rows, apiRef]);
 
 	let rows = props.rows;
 

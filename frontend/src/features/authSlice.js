@@ -31,6 +31,8 @@ export const loginUser = createAsyncThunk(
                 username: response.data.username,
                 role: response.data.role
             }
+            
+
             // Save token to localStorage
             try {
                 localStorage.setItem('token', token);
@@ -92,7 +94,7 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
-                
+                console.log(action.payload);
                 state.token = action.payload.token;
                 state.user = action.payload.user;
                 state.isAuthenticated = true;
