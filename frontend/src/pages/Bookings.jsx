@@ -133,6 +133,7 @@ const Bookings = () => {
               rows={bookings.rows}
               title="Bookings"
               onSelectionChange={setSelectedBookings}
+              editable={true}
             />
           ) : (
             <Typography>No bookings found</Typography>

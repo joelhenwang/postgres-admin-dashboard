@@ -1,8 +1,10 @@
 import * as React from "react";
-import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
+import { DataGrid, useGridApiRef, GridActionsCellItem } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState } from "react";
+import EditIcon from '@mui/icons-material/Edit';
+import EditBookingForm from './EditBookingForm';
 
 function splitPascalCase(string) {
 	let result = string.replace(/([A-Z])/g, " $1");
@@ -11,7 +13,12 @@ function splitPascalCase(string) {
 
 export default function Table(props) {
 	const [selectedRows, setSelectedRows] = useState([]);
+	const [editingBooking, setEditingBooking] = useState(null);
 	const apiRef = useGridApiRef();
+
+	const handleEdit = (row) => {
+		setEditingBooking(row);
+	};
 
 	let columns = props.columns.map((column) => {
 		return {
@@ -22,11 +29,28 @@ export default function Table(props) {
 		};
 	});
 
-	React.useEffect(() => {
-		if (props.columns.length > 0 && props.rows.length > 0) {
-			apiRef.current.autosizeColumns({ includeHeaders: true });
-		}
-	}, [props.columns, props.rows, apiRef]);
+	// Add edit action column if table is editable
+	if (props.editable) {
+		columns.unshift({
+			field: 'actions',
+			type: 'actions',
+			headerName: 'Actions',
+			width: 100,
+			getActions: (params) => [
+				<GridActionsCellItem
+					icon={<EditIcon />}
+					label="Edit"
+					onClick={() => handleEdit(params.row)}
+				/>
+			],
+		});
+	}
+
+	// React.useEffect(() => {
+	// 	if (props.columns.length > 0 && props.rows.length > 0) {
+	// 		apiRef.current.autosizeColumns({ includeHeaders: true });
+	// 	}
+	// }, [props.columns, props.rows, apiRef]);
 
 	let rows = props.rows;
 
@@ -66,6 +90,7 @@ export default function Table(props) {
 			<DataGrid
 				apiRef={apiRef}
 				columns={columns}
+				autosizeOnMount
 				rows={rows}
 				checkboxSelection
 				onRowSelectionModelChange={handleSelectionChange}
@@ -81,6 +106,13 @@ export default function Table(props) {
 					},
 				}}
 			/>
+
+			{editingBooking && (
+				<EditBookingForm
+					booking={editingBooking}
+					onClose={() => setEditingBooking(null)}
+				/>
+			)}
 		</Box>
 	);
 }
@@ -90,4 +122,9 @@ Table.propTypes = {
 	rows: PropTypes.array.isRequired,
 	title: PropTypes.string,
 	onSelectionChange: PropTypes.func,
+	editable: PropTypes.bool,
+};
+
+Table.defaultProps = {
+	editable: false,
 };

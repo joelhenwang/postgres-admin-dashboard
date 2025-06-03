@@ -14,6 +14,9 @@ export const fetchBookings = createAsyncThunk(
     async (_, thunkAPI) => {
         try{
             const response = await axiosInstance.get('/bookings');
+            
+            
+
             return response.data;
         } catch (error) {
             let errorMessage = 'Error fetching bookings';
