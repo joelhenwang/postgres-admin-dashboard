@@ -1,11 +1,7 @@
 import * as React from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
-import { styled } from '@mui/material/styles';
-import MuiCard from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import CssBaseline from '@mui/material/CssBaseline';
 import Login from './pages/Login';
-import Home from './pages/Home';
 import { store } from './store';
 import { Provider } from 'react-redux';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -16,6 +12,7 @@ import RootRedirect from './components/RootRedirect';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/pt';
+import Restaurant from './pages/Restaurant';
 
 function App() {
   return (
@@ -38,6 +35,7 @@ function App() {
                   <Route path='/admin' element={<Admin />} />
                   <Route path='/users' element={<Users />} />
                   <Route path='/bookings' element={<Bookings />} />
+                  <Route path='/restaurant' element={<Restaurant />} />
                 </Route>
 
                 {/* Catch all route - redirect to root */}

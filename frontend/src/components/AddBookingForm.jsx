@@ -16,10 +16,14 @@ import PropTypes from "prop-types";
 import axiosInstance from '../utils/axiosConfig';
 import dayjs from "dayjs";
 import isTodayPlugin from 'dayjs/plugin/isToday'; // Import isToday plugin
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBookings } from "../features/bookingsDataSlice";
 
 dayjs.extend(isTodayPlugin); // Extend dayjs with the plugin
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const style = {
 	position: "absolute",
@@ -111,13 +115,25 @@ const AddBookingForm = (props) => {
 	}
 
 	// Handle booking date selection
-	const handleDateChange = (event) => {
-		setDate(dayjs(event.$d)); // Use dayjs to handle date
+	const handleDateChange = (newDate) => {
+		if (!newDate) {
+			setDate(null);
+			return;
+		}
+
+		const selectedDate = dayjs(newDate);
+		const today = dayjs().startOf('day');
 		
-		// Reset meal and hour when date changes
+		// Validate date is not in the past
+		if (selectedDate.isBefore(today)) {
+			alert('Cannot select a date in the past');
+			return;
+		}
+
+		setDate(selectedDate);
 		setMeal("");
 		setHour(null);
-	}
+	};
 
 	// Handle meal selection
 	const handleMealChange = (event) => {
@@ -133,11 +149,14 @@ const AddBookingForm = (props) => {
 		
 		const user = JSON.parse(localStorage.getItem("user"));
 		const username = user.username;
+
+		// Ensure date is in local timezone
+		const localDate = date.tz(dayjs.tz.guess());
 		
 		const bookingData = {
 			booking_restaurant: restaurant,
-			booking_date: date.format('DD-MM-YYYY'),
-			booking_hour: hour ? hour.format('HH:mm') : null, // Format hour before sending
+			booking_date: localDate.format('YYYY-MM-DD'),
+			booking_hour: hour ? hour.format('HH:mm') : null,
 			booking_guests: parseInt(guests),
 			booking_name: name,
 			booking_email: email,
@@ -149,7 +168,7 @@ const AddBookingForm = (props) => {
 		};
 
 		console.log("Booking Data:", bookingData); // Log the booking data
-		console.log("date: ", date.format('DD-MM-YYYY'));
+		console.log("date: ", localDate.format('YYYY-MM-DD'));
 		
 		
 		try {

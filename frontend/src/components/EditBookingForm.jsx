@@ -14,10 +14,14 @@ import PropTypes from "prop-types";
 import axiosInstance from '../utils/axiosConfig';
 import dayjs from "dayjs";
 import isTodayPlugin from 'dayjs/plugin/isToday';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { useDispatch } from "react-redux";
 import { fetchBookings } from "../features/bookingsDataSlice";
 
 dayjs.extend(isTodayPlugin);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const style = {
     position: "absolute",
@@ -111,7 +115,21 @@ const EditBookingForm = ({ booking, onClose }) => {
     }, [date, meal]);
 
     const handleDateChange = (newDate) => {
-        setDate(dayjs(newDate));
+        if (!newDate) {
+            setDate(null);
+            return;
+        }
+
+        const selectedDate = dayjs(newDate);
+        const today = dayjs().startOf('day');
+        
+        // Validate date is not in the past
+        if (selectedDate.isBefore(today)) {
+            alert('Cannot select a date in the past');
+            return;
+        }
+
+        setDate(selectedDate);
         setMeal("");
         setHour(null);
     };
@@ -130,10 +148,13 @@ const EditBookingForm = ({ booking, onClose }) => {
 
         setIsWaiting(true);
         
+        // Ensure date is in local timezone
+        const localDate = date.tz(dayjs.tz.guess());
+        
         const bookingData = {
             id: booking.id,
             booking_restaurant: restaurant,
-            booking_date: date.format('YYYY-MM-DD'),
+            booking_date: localDate.format('YYYY-MM-DD'),
             booking_hour: hour ? hour.format('HH:mm') : null,
             booking_guests: parseInt(guests),
             booking_name: name,
