@@ -10,7 +10,10 @@ import {
     Alert,
     IconButton,
     Badge,
-    Stack
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Divider
 } from "@mui/material";
 import { 
     Add as AddIcon,
@@ -20,7 +23,8 @@ import {
     NavigateBefore as PrevIcon,
     NavigateNext as NextIcon,
     LunchDining as LunchIcon,
-    DinnerDining as DinnerIcon
+    DinnerDining as DinnerIcon,
+    ExpandMore as ExpandMoreIcon
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBookings } from "../features/bookingsDataSlice";
@@ -40,6 +44,9 @@ const Restaurant = () => {
     const [showEditForm, setShowEditForm] = useState(false);
     const [editingBooking, setEditingBooking] = useState(null);
     const [error, setError] = useState(null);
+    
+    // Accordion states for Lunch and Dinner sections
+    const [expandedAccordions, setExpandedAccordions] = useState(['lunch', 'dinner']); // Both expanded by default
 
     const { bookings, isLoadingBookings, errorBookings } = useSelector(
         (state) => state.bookings
@@ -119,6 +126,63 @@ const Restaurant = () => {
         }
     };
 
+    // Handle accordion expansion
+    const handleAccordionChange = (panel) => (event, isExpanded) => {
+        if (isExpanded) {
+            setExpandedAccordions(prev => [...prev, panel]);
+        } else {
+            setExpandedAccordions(prev => prev.filter(item => item !== panel));
+        }
+    };
+
+    const renderBookingsInAccordion = (bookingsList, mealType) => (
+        <Box sx={{ width: '100%' }}>
+            {bookingsList.length > 0 ? (
+                <Box sx={{ 
+                    display: 'grid', 
+                    gap: 2, 
+                    gridTemplateColumns: { 
+                        xs: '1fr', 
+                        sm: 'repeat(2, 1fr)', 
+                        md: 'repeat(3, 1fr)',
+                        lg: 'repeat(4, 1fr)'
+                    },
+                    maxHeight: '70vh', 
+                    overflowY: 'auto', 
+                    pl: 1,
+                    pr: 1,
+                    pt: 2
+                }}>
+                    {bookingsList.map((booking) => (
+                        <BookingCard
+                            key={booking.id}
+                            booking={booking}
+                            onEdit={handleEditBooking}
+                            onDelete={handleDeleteBooking}
+                        />
+                    ))}
+                </Box>
+            ) : (
+                <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    py: 4, 
+                    color: 'text.secondary' 
+                }}>
+                    <RestaurantIcon sx={{ fontSize: 64, mb: 2, opacity: 0.3 }} />
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                        No {mealType} bookings
+                    </Typography>
+                    <Typography variant="body2" sx={{ textAlign: 'center' }}>
+                        No bookings scheduled for {mealType} on {selectedDate.format('MMMM DD, YYYY')}
+                    </Typography>
+                </Box>
+            )}
+        </Box>
+    );
+
     if (isLoading) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -138,6 +202,8 @@ const Restaurant = () => {
     return (
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%", height: "100vh" }}>
             <SideBar />
+            
+            {/* Main Content */}
             <Container sx={{ mt: 2, mb: 2, ml: 2, width: "100%", maxWidth: "none !important" }}>
                 {/* Header */}
                 <Paper elevation={2} sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
@@ -187,98 +253,173 @@ const Restaurant = () => {
                     </Box>
                 </Paper>
 
-                {/* Bookings Overview */}
-                <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
-                    {/* Lunch Section */}
-                    <Box sx={{ flex: 1 }}>
-                        <Paper elevation={2} sx={{ p: 3, height: 'fit-content' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                                <LunchIcon sx={{ fontSize: 28, color: '#ff9800' }} />
-                                <Typography variant="h5" sx={{ fontWeight: 600, color: '#ff9800' }}>
-                                    Lunch
+                {/* Summary Statistics */}
+                <Paper elevation={1} sx={{ p: 3, mb: 3, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ mb: 2, color: '#666' }}>
+                        Today's Overview
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                        <Box>
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#1976d2' }}>
+                                {filteredBookings.length}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Total Bookings
+                            </Typography>
+                        </Box>
+                        <Divider orientation="vertical" flexItem />
+                        <Box>
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff9800' }}>
+                                {lunchBookings.length}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Lunch
+                            </Typography>
+                        </Box>
+                        <Divider orientation="vertical" flexItem />
+                        <Box>
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#3f51b5' }}>
+                                {dinnerBookings.length}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Dinner
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Paper>
+
+                {/* Accordion Sections */}
+                <Box sx={{ mb: 3 }}>
+                    {/* Lunch Accordion */}
+                    <Accordion 
+                        expanded={expandedAccordions.includes('lunch')}
+                        onChange={handleAccordionChange('lunch')}
+                        sx={{ 
+                            mb: 2,
+                            '&.Mui-expanded': {
+                                margin: '0 0 16px 0'
+                            },
+                            '&:before': {
+                                display: 'none'
+                            },
+                            boxShadow: 2
+                        }}
+                    >
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            sx={{ 
+                                background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
+                                color: 'white',
+                                '& .MuiAccordionSummary-content': {
+                                    alignItems: 'center'
+                                },
+                                '&.Mui-expanded': {
+                                    minHeight: 48
+                                },
+                                '& .MuiAccordionSummary-content.Mui-expanded': {
+                                    margin: '12px 0'
+                                }
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+                                <LunchIcon sx={{ fontSize: 28 }} />
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                    Lunch Bookings
                                 </Typography>
                                 <Badge 
                                     badgeContent={lunchBookings.length} 
-                                    color="primary"
-                                    sx={{ ml: 1 }}
+                                    color="error"
+                                    sx={{ 
+                                        '& .MuiBadge-badge': { 
+                                            backgroundColor: 'white', 
+                                            color: '#ff9800',
+                                            fontWeight: 'bold'
+                                        } 
+                                    }}
                                 />
+                                <Typography variant="body2" sx={{ ml: 'auto', opacity: 0.9 }}>
+                                    12:00 PM - 5:00 PM
+                                </Typography>
                             </Box>
-                            
-                            {lunchBookings.length > 0 ? (
-                                <Box sx={{ maxHeight: '70vh', overflowY: 'auto', pr: 1 }}>
-                                    {lunchBookings.map((booking) => (
-                                        <BookingCard
-                                            key={booking.id}
-                                            booking={booking}
-                                            onEdit={handleEditBooking}
-                                            onDelete={handleDeleteBooking}
-                                        />
-                                    ))}
-                                </Box>
-                            ) : (
-                                <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
-                                    <RestaurantIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
-                                    <Typography variant="body1">
-                                        No lunch bookings for this day
-                                    </Typography>
-                                </Box>
-                            )}
-                        </Paper>
-                    </Box>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ p: 0 }}>
+                            {renderBookingsInAccordion(lunchBookings, 'lunch')}
+                        </AccordionDetails>
+                    </Accordion>
 
-                    {/* Dinner Section */}
-                    <Box sx={{ flex: 1 }}>
-                        <Paper elevation={2} sx={{ p: 3, height: 'fit-content' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                                <DinnerIcon sx={{ fontSize: 28, color: '#3f51b5' }} />
-                                <Typography variant="h5" sx={{ fontWeight: 600, color: '#3f51b5' }}>
-                                    Dinner
+                    {/* Dinner Accordion */}
+                    <Accordion 
+                        expanded={expandedAccordions.includes('dinner')}
+                        onChange={handleAccordionChange('dinner')}
+                        sx={{ 
+                            mb: 2,
+                            '&.Mui-expanded': {
+                                margin: '0 0 16px 0'
+                            },
+                            '&:before': {
+                                display: 'none'
+                            },
+                            boxShadow: 2
+                        }}
+                    >
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            sx={{ 
+                                background: 'linear-gradient(135deg, #3f51b5 0%, #303f9f 100%)',
+                                color: 'white',
+                                '& .MuiAccordionSummary-content': {
+                                    alignItems: 'center'
+                                },
+                                '&.Mui-expanded': {
+                                    minHeight: 48
+                                },
+                                '& .MuiAccordionSummary-content.Mui-expanded': {
+                                    margin: '12px 0'
+                                }
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+                                <DinnerIcon sx={{ fontSize: 28 }} />
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                    Dinner Bookings
                                 </Typography>
                                 <Badge 
                                     badgeContent={dinnerBookings.length} 
-                                    color="primary"
-                                    sx={{ ml: 1 }}
+                                    color="error"
+                                    sx={{ 
+                                        '& .MuiBadge-badge': { 
+                                            backgroundColor: 'white', 
+                                            color: '#3f51b5',
+                                            fontWeight: 'bold'
+                                        } 
+                                    }}
                                 />
+                                <Typography variant="body2" sx={{ ml: 'auto', opacity: 0.9 }}>
+                                    7:30 PM - 11:00 PM
+                                </Typography>
                             </Box>
-                            
-                            {dinnerBookings.length > 0 ? (
-                                <Box sx={{ maxHeight: '70vh', overflowY: 'auto', pr: 1 }}>
-                                    {dinnerBookings.map((booking) => (
-                                        <BookingCard
-                                            key={booking.id}
-                                            booking={booking}
-                                            onEdit={handleEditBooking}
-                                            onDelete={handleDeleteBooking}
-                                        />
-                                    ))}
-                                </Box>
-                            ) : (
-                                <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
-                                    <RestaurantIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
-                                    <Typography variant="body1">
-                                        No dinner bookings for this day
-                                    </Typography>
-                                </Box>
-                            )}
-                        </Paper>
-                    </Box>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ p: 0 }}>
+                            {renderBookingsInAccordion(dinnerBookings, 'dinner')}
+                        </AccordionDetails>
+                    </Accordion>
                 </Box>
-
-                {/* Modals */}
-                {showAddForm && (
-                    <AddBookingForm onClose={() => setShowAddForm(false)} />
-                )}
-                
-                {showEditForm && editingBooking && (
-                    <EditBookingForm 
-                        booking={editingBooking}
-                        onClose={() => {
-                            setShowEditForm(false);
-                            setEditingBooking(null);
-                        }} 
-                    />
-                )}
             </Container>
+
+            {/* Modals */}
+            {showAddForm && (
+                <AddBookingForm onClose={() => setShowAddForm(false)} />
+            )}
+
+            {showEditForm && editingBooking && (
+                <EditBookingForm 
+                    booking={editingBooking}
+                    onClose={() => {
+                        setShowEditForm(false);
+                        setEditingBooking(null);
+                    }} 
+                />
+            )}
         </Box>
     );
 };
